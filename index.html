@@ -11,83 +11,148 @@
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      margin: 0;
-      background: #0b0f14;
-      color: #ffffff;
-      font-family: 'Lato', system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
+    body{
+      margin:0;
+      background:#0b0f14;
+      color:#fff;
+      font-family:'Lato', system-ui, -apple-system, sans-serif;
+      min-height:100vh;
+      overflow-x:hidden;
     }
 
-    /* 鳥（右 → 左） */
-    .bird {
-      position: fixed;
-      top: 25%;
-      right: -160px;
-      width: 140px;
+    /* 鳥（右→左） */
+    .bird{
+      position:fixed;
+      top:25%;
+      right:-160px;
+      width:140px;
+      height:auto;
       animation: fly 6s ease-out forwards;
-      pointer-events: none;
-      z-index: 10;
+      z-index:10;
+      cursor:pointer;           /* クリックできると分かる */
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
     }
 
-    @keyframes fly {
-      0% {
-        transform: translateX(0);
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      100% {
-        transform: translateX(-120vw);
-        opacity: 0;
-      }
+    @keyframes fly{
+      0%   { transform: translateX(0);      opacity:0; }
+      10%  { opacity:1; }
+      100% { transform: translateX(-120vw); opacity:0; }
     }
 
-    /* スマホ調整 */
-    @media (max-width: 600px) {
-      .bird {
-        width: 90px;
-        top: 20%;
-        animation-duration: 4.5s;
-      }
+    /* 停止状態 */
+    .bird.stopped{
+      animation-play-state: paused;
+      opacity:1; /* 止めた瞬間に見え続ける */
+      filter: drop-shadow(0 10px 25px rgba(0,0,0,.45));
+    }
+
+    /* Why?（鳥の近くに表示） */
+    .why{
+      position:fixed;
+      z-index:11;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      backdrop-filter: blur(8px);
+      color:rgba(255,255,255,.92);
+      font-size:14px;
+      letter-spacing:.10em;
+      opacity:0;
+      transform: translateY(6px);
+      pointer-events:none;
+      transition: opacity .2s ease, transform .2s ease;
+      white-space:nowrap;
+    }
+    .why.show{
+      opacity:1;
+      transform: translateY(0);
+    }
+
+    @media (max-width:600px){
+      .bird{ width:90px; top:20%; animation-duration:4.5s; }
+      .why{ font-size:13px; }
     }
 
     /* 中央テキスト */
-    .center {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
+    .center{
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
     }
-
-    h1 {
-      margin: 0;
-      font-size: 34px;
-      letter-spacing: 0.18em;
-      font-weight: 400;
+    h1{
+      margin:0;
+      font-size:34px;
+      letter-spacing:0.18em;
+      font-weight:400;
     }
-
-    p {
-      margin-top: 14px;
-      font-size: 13px;
-      letter-spacing: 0.12em;
-      color: rgba(255, 255, 255, 0.6);
+    p{
+      margin-top:14px;
+      font-size:13px;
+      letter-spacing:0.12em;
+      color:rgba(255,255,255,0.6);
     }
   </style>
 </head>
 
 <body>
   <!-- 鳥 -->
-  <img src="birdsample.png" alt="bird" class="bird" />
+  <img id="bird" src="birdsample.png" alt="bird" class="bird" />
+
+  <!-- Why? -->
+  <div id="why" class="why">Why?</div>
 
   <!-- 中央 -->
   <div class="center">
     <h1>TAKI SHINYA</h1>
     <p>gallery / experiment</p>
   </div>
+
+  <script>
+    const bird = document.getElementById('bird');
+    const why  = document.getElementById('why');
+
+    function placeWhyNearBird() {
+      const r = bird.getBoundingClientRect();
+      // 鳥の右上あたりに出す（画面外に出ないよう軽くクランプ）
+      let x = r.right - 10;
+      let y = r.top - 10;
+
+      const pad = 8;
+      const w = why.offsetWidth || 60;
+      const h = why.offsetHeight || 24;
+
+      x = Math.min(window.innerWidth - w - pad, Math.max(pad, x));
+      y = Math.min(window.innerHeight - h - pad, Math.max(pad, y));
+
+      why.style.left = x + 'px';
+      why.style.top  = y + 'px';
+    }
+
+    function stopBirdAndShowWhy() {
+      bird.classList.add('stopped');
+      // 位置計算（表示前に一度可視化が必要なので、先に仮表示）
+      why.classList.add('show');
+      // next frameで位置を確定
+      requestAnimationFrame(() => {
+        placeWhyNearBird();
+      });
+    }
+
+    // クリック/タップで停止
+    bird.addEventListener('click', stopBirdAndShowWhy, { passive: true });
+    bird.addEventListener('touchstart', stopBirdAndShowWhy, { passive: true });
+
+    // 画面回転/リサイズ時に位置を追従
+    window.addEventListener('resize', () => {
+      if (why.classList.contains('show')) placeWhyNearBird();
+    });
+
+    // 追加オプション：飛び終わったらクリック不能になるのを避けたい場合は何もしない（現状OK）
+  </script>
 </body>
 </html>

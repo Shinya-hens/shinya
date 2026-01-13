@@ -3,23 +3,28 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>shinya</title>
+  <title>TAKI SHINYA</title>
+
+  <!-- Lato -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400&display=swap" rel="stylesheet">
 
   <style>
     body {
       margin: 0;
       background: #0b0f14;
-      color: #fff;
-      font-family: system-ui, -apple-system, "Hiragino Sans", sans-serif;
+      color: #ffffff;
+      font-family: 'Lato', system-ui, -apple-system, sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* 鳥 */
+    /* 鳥（右 → 左） */
     .bird {
       position: fixed;
       top: 25%;
-      left: -150px;
+      right: -160px;
       width: 140px;
       animation: fly 6s ease-out forwards;
       pointer-events: none;
@@ -35,7 +40,7 @@
         opacity: 1;
       }
       100% {
-        transform: translateX(120vw);
+        transform: translateX(-120vw);
         opacity: 0;
       }
     }
@@ -60,15 +65,17 @@
     }
 
     h1 {
-      font-size: 32px;
-      letter-spacing: 0.1em;
       margin: 0;
+      font-size: 34px;
+      letter-spacing: 0.18em;
+      font-weight: 400;
     }
 
     p {
-      margin-top: 12px;
-      color: rgba(255,255,255,0.6);
-      font-size: 14px;
+      margin-top: 14px;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.6);
     }
   </style>
 </head>
@@ -77,9 +84,9 @@
   <!-- 鳥 -->
   <img src="birdsample.png" alt="bird" class="bird" />
 
-  <!-- 中央コンテンツ -->
+  <!-- 中央 -->
   <div class="center">
-    <h1>shinya</h1>
+    <h1>TAKI SHINYA</h1>
     <p>gallery / experiment</p>
   </div>
 </body>

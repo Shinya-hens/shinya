@@ -3,11 +3,84 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shinya Site</title>
+  <title>shinya</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #0b0f14;
+      color: #fff;
+      font-family: system-ui, -apple-system, "Hiragino Sans", sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 鳥 */
+    .bird {
+      position: fixed;
+      top: 25%;
+      left: -150px;
+      width: 140px;
+      animation: fly 6s ease-out forwards;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    @keyframes fly {
+      0% {
+        transform: translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(120vw);
+        opacity: 0;
+      }
+    }
+
+    /* スマホ調整 */
+    @media (max-width: 600px) {
+      .bird {
+        width: 90px;
+        top: 20%;
+        animation-duration: 4.5s;
+      }
+    }
+
+    /* 中央テキスト */
+    .center {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 32px;
+      letter-spacing: 0.1em;
+      margin: 0;
+    }
+
+    p {
+      margin-top: 12px;
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Hello</h1>
-  <p>index.html が表示できています。</p>
+  <!-- 鳥 -->
+  <img src="birdsample.png" alt="bird" class="bird" />
+
+  <!-- 中央コンテンツ -->
+  <div class="center">
+    <h1>shinya</h1>
+    <p>gallery / experiment</p>
+  </div>
 </body>
 </html>
-

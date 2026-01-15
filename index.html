@@ -29,7 +29,7 @@
       height:auto;
       animation: fly 6s ease-out forwards;
       z-index:10;
-      cursor:pointer;           /* クリックできると分かる */
+      cursor:pointer;
       -webkit-tap-highlight-color: transparent;
       user-select:none;
     }
@@ -40,10 +40,9 @@
       100% { transform: translateX(-120vw); opacity:0; }
     }
 
-    /* 停止状態 */
     .bird.stopped{
       animation-play-state: paused;
-      opacity:1; /* 止めた瞬間に見え続ける */
+      opacity:1;
       filter: drop-shadow(0 10px 25px rgba(0,0,0,.45));
     }
 
@@ -96,6 +95,123 @@
       letter-spacing:0.12em;
       color:rgba(255,255,255,0.6);
     }
+
+    /* ↓ 追加：スクロール下のピカチュウセクション */
+    .pika-section{
+      min-height:100vh;                 /* スクロールで到達できる */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:80px 18px;
+    }
+
+    .pika-wrap{
+      width:min(520px, 92vw);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:14px;
+      position:relative;
+    }
+
+    .pika{
+      width:140px;                      /* 小さめ表示 */
+      height:auto;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      filter: drop-shadow(0 14px 32px rgba(0,0,0,.45));
+      transition: transform .12s ease;
+    }
+    .pika:active{
+      transform: scale(0.98);
+    }
+
+    /* ピカチュウの上に出る一言（吹き出し風） */
+    .pika-msg{
+      position:absolute;
+      top:-44px;
+      left:50%;
+      transform: translateX(-50%) translateY(6px);
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      backdrop-filter: blur(10px);
+      font-size:13px;
+      letter-spacing:.08em;
+      color:rgba(255,255,255,.92);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .2s ease, transform .2s ease;
+      white-space:nowrap;
+    }
+    .pika-msg.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 入力欄とボタン（最初は非表示） */
+    .auth{
+      width:100%;
+      display:none;                     /* タップで表示 */
+      flex-direction:column;
+      gap:10px;
+      margin-top:8px;
+    }
+    .auth.show{
+      display:flex;
+    }
+
+    .field{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .label{
+      font-size:12px;
+      letter-spacing:.14em;
+      color:rgba(255,255,255,.70);
+      text-transform:none;
+    }
+    .input{
+      width:100%;
+      box-sizing:border-box;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      color:rgba(255,255,255,.92);
+      outline:none;
+      font-family:'Lato', system-ui, -apple-system, sans-serif;
+      letter-spacing:.06em;
+    }
+    .input:focus{
+      border-color: rgba(255,255,255,.28);
+      background: rgba(255,255,255,.06);
+    }
+
+    .enter-btn{
+      margin-top:6px;
+      width:100%;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      color:rgba(255,255,255,.92);
+      letter-spacing:.14em;
+      cursor:pointer;
+      font-family:'Lato', system-ui, -apple-system, sans-serif;
+    }
+    .enter-btn:active{
+      transform: translateY(1px);
+    }
+
+    @media (max-width:600px){
+      .pika{ width:110px; }
+      .pika-msg{ font-size:12px; top:-40px; }
+    }
   </style>
 </head>
 
@@ -112,13 +228,36 @@
     <p>gallery / experiment</p>
   </div>
 
+  <!-- ↓ 追加：スクロール下のピカチュウ -->
+  <section class="pika-section">
+    <div class="pika-wrap">
+      <div id="pikaMsg" class="pika-msg"></div>
+
+      <img id="pika" class="pika" src="pika.png" alt="pika" />
+
+      <div id="auth" class="auth">
+        <div class="field">
+          <div class="label">NAME</div>
+          <input id="nameInput" class="input" type="text" autocomplete="username" />
+        </div>
+
+        <div class="field">
+          <div class="label">PASSWORD</div>
+          <input id="passInput" class="input" type="password" autocomplete="current-password" />
+        </div>
+
+        <button id="enterBtn" class="enter-btn" type="button">ENTER</button>
+      </div>
+    </div>
+  </section>
+
   <script>
+    // --- 既存：鳥 ---
     const bird = document.getElementById('bird');
     const why  = document.getElementById('why');
 
     function placeWhyNearBird() {
       const r = bird.getBoundingClientRect();
-      // 鳥の右上あたりに出す（画面外に出ないよう軽くクランプ）
       let x = r.right - 10;
       let y = r.top - 10;
 
@@ -135,24 +274,58 @@
 
     function stopBirdAndShowWhy() {
       bird.classList.add('stopped');
-      // 位置計算（表示前に一度可視化が必要なので、先に仮表示）
       why.classList.add('show');
-      // next frameで位置を確定
-      requestAnimationFrame(() => {
-        placeWhyNearBird();
-      });
+      requestAnimationFrame(() => { placeWhyNearBird(); });
     }
 
-    // クリック/タップで停止
     bird.addEventListener('click', stopBirdAndShowWhy, { passive: true });
     bird.addEventListener('touchstart', stopBirdAndShowWhy, { passive: true });
 
-    // 画面回転/リサイズ時に位置を追従
     window.addEventListener('resize', () => {
       if (why.classList.contains('show')) placeWhyNearBird();
     });
 
-    // 追加オプション：飛び終わったらクリック不能になるのを避けたい場合は何もしない（現状OK）
+    // --- 追加：ピカチュウ ---
+    const pika = document.getElementById('pika');
+    const pikaMsg = document.getElementById('pikaMsg');
+    const auth = document.getElementById('auth');
+    const enterBtn = document.getElementById('enterBtn');
+
+    // ランダム表示する一言（ユーザー指定 + 追加2つ）
+    const messages = [
+      "I hope you have a wonderful day!",
+      "Keep going — you're closer than you think.",
+      "Small steps today. Big change tomorrow."
+    ];
+
+    function showRandomMessage() {
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+      pikaMsg.textContent = msg;
+      pikaMsg.classList.add('show');
+
+      // 数秒後に自然に消す（固定表示にしたければこの部分を消す）
+      clearTimeout(showRandomMessage._t);
+      showRandomMessage._t = setTimeout(() => {
+        pikaMsg.classList.remove('show');
+      }, 2600);
+    }
+
+    function revealAuthUI() {
+      auth.classList.add('show');
+    }
+
+    function onPikaTap() {
+      showRandomMessage();
+      revealAuthUI();
+    }
+
+    pika.addEventListener('click', onPikaTap, { passive: true });
+    pika.addEventListener('touchstart', onPikaTap, { passive: true });
+
+    // Enterは後で実装する前提：今は何もしない（クリックできるだけ）
+    enterBtn.addEventListener('click', () => {
+      // TODO: later
+    });
   </script>
 </body>
 </html>
